@@ -19,7 +19,7 @@ public class JsonToMirror : MonoBehaviour
 
 	public List<RefinedDataStorageClass> leader, story, listener, planner, odds;
 	public Vector2 avgOdds, avgLeader, avgStory, avgPlanner, avgListener;
-	private List<GameObject> oddsObjs, leaderObjs, storyObjs, listenerObjs, plannerObjs, allObjs;
+	private List<GameObject> oddsObjs, leaderObjs, storyObjs, listenerObjs, plannerObjs, allObjs, avgObjs;
 
 	public List<RefinedDataStorageClass> refinedData;
 	public Text totalText, storyText, leaderText, plannerText, listenerText, oddsText;
@@ -27,6 +27,8 @@ public class JsonToMirror : MonoBehaviour
 
 	private float storyPct, leaderPct, plannerPct, listenerPct, oddsPct;
 	private float individualPct, collectivePct, absorbingPct, broadcastingPct;
+
+	public Vector2 totalAvg;
 
 
 	private BCType[] bcTypeOrder = new BCType[20]
@@ -83,6 +85,71 @@ public class JsonToMirror : MonoBehaviour
 
 		PlaceNodes();
 		SetupUIText();
+
+		GetTotalAvg();
+		InstantiateAverages();
+	}
+
+	private void GetTotalAvg()
+	{
+		float x = 0, y = 0;
+
+		foreach (var item in refinedData)
+		{
+			x += item.pointOnAxis.x;
+			y += item.pointOnAxis.y;
+		}
+
+		x /= refinedData.Count;
+		y /= refinedData.Count;
+
+		totalAvg = new Vector2(x, y);
+	}
+
+	private void InstantiateAverages()
+	{
+		avgObjs = new List<GameObject>();
+
+		GameObject go = Instantiate(nodePrefab, totalAvg, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.gray;
+		go.transform.localScale += new Vector3(0.5f, 0.5f, 0.5f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+
+		go = Instantiate(nodePrefab, avgOdds, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.black;
+		go.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+		oddsObjs.Add(go);
+
+		go = Instantiate(nodePrefab, avgStory, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.green;
+		go.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+		storyObjs.Add(go);
+
+		go = Instantiate(nodePrefab, avgLeader, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.blue;
+		go.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+		leaderObjs.Add(go);
+
+		go = Instantiate(nodePrefab, avgListener, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.magenta;
+		go.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+		listenerObjs.Add(go);
+
+		go = Instantiate(nodePrefab, avgPlanner, Quaternion.identity);
+		go.GetComponent<MeshRenderer>().material.color = Color.yellow;
+		go.transform.localScale += new Vector3(0.1f, 0.1f, 0.1f);
+		avgObjs.Add(go);
+		allObjs.Add(go);
+		plannerObjs.Add(go);
 	}
 
 	//Calculates and rounds percentages to two decimal place.
@@ -147,7 +214,7 @@ public class JsonToMirror : MonoBehaviour
 					listenerObjs.Add(obj);
 					break;
 			}
-
+			obj.transform.localScale -= new Vector3(0.25f, 0.25f, 0.25f);
 			allObjs.Add(obj);
 		}
 	}
@@ -270,7 +337,7 @@ public class JsonToMirror : MonoBehaviour
 		return returnVal;
 	}
 
-	public enum DisplayTypes { all, none, togglestoryteller, toggleleader, toggleplanner, togglelistener, onlystory, onlyleader, onlyplanner, onlylistener, onlyneutrals, toggleneutrals }
+	public enum DisplayTypes { all, none, togglestoryteller, toggleleader, toggleplanner, togglelistener, onlystory, onlyleader, onlyplanner, onlylistener, onlyneutrals, toggleneutrals, toggleAvg, onlyAvg }
 
 	// Coupled to UI
 	// God help this code
@@ -334,6 +401,16 @@ public class JsonToMirror : MonoBehaviour
 				break;
 			case DisplayTypes.toggleneutrals:
 				foreach (var item in oddsObjs)
+					item.SetActive(!item.activeSelf);
+				break;
+			case DisplayTypes.onlyAvg:
+				foreach (var item in allObjs)
+					item.SetActive(false);
+				foreach (var item in avgObjs)
+					item.SetActive(true);
+				break;
+			case DisplayTypes.toggleAvg:
+				foreach (var item in avgObjs)
 					item.SetActive(!item.activeSelf);
 				break;
 			default:
