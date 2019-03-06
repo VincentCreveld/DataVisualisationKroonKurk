@@ -30,6 +30,9 @@ public class JsonToMirror : MonoBehaviour
 
 	public Vector2 totalAvg;
 
+	public HackyFOVCaster leaderFOV, storyFOV, listenerFOV, plannerFOV, oddsFOV;
+	public GameObject pieChartParent;
+
 
 	private BCType[] bcTypeOrder = new BCType[20]
 	{
@@ -167,17 +170,46 @@ public class JsonToMirror : MonoBehaviour
 		collectivePct = leaderPct + listenerPct;
 		individualPct = storyPct + plannerPct;
 
-		totalText.text = "Total entries: " + allObjs.Count + " - 100%";
-		storyText.text = "Assertive Storytellers: " + storyObjs.Count + " - " + storyPct + "%";
-		leaderText.text = "Idealistic Leaders: " + leaderObjs.Count + " - " + leaderPct + "%";
-		plannerText.text = "Inquisitive Planners: " + plannerObjs.Count + " - " + plannerPct + "%";
-		listenerText.text = "Curious Listeners: " + listenerObjs.Count + " - " + listenerPct + "%";
-		oddsText.text = "Total odd entries: " + oddsObjs.Count + " - " + oddsPct + "%";
+		totalText.text = allObjs.Count + " - 100%";
+		storyText.text = storyObjs.Count + " - " + storyPct + "%";
+		leaderText.text = leaderObjs.Count + " - " + leaderPct + "%";
+		plannerText.text = plannerObjs.Count + " - " + plannerPct + "%";
+		listenerText.text = listenerObjs.Count + " - " + listenerPct + "%";
+		oddsText.text = oddsObjs.Count + " - " + oddsPct + "%";
 
-		broadcastingText.text = "Total broadcasting: " + (storyObjs.Count + leaderObjs.Count) + " - " + broadcastingPct + "%";
-		absorbingText.text = "Total absorbing: " + (plannerObjs.Count + listenerObjs.Count) + " - " + absorbingPct + "%";
-		collectiveText.text = "Total collective: " + (leaderObjs.Count + listenerObjs.Count) + " - " + collectivePct + "%";
-		individualText.text = "Total individual: " + (storyObjs.Count + plannerObjs.Count) + " - " + individualPct + "%";
+		broadcastingText.text = (storyObjs.Count + leaderObjs.Count) + " - " + broadcastingPct + "%";
+		absorbingText.text = (plannerObjs.Count + listenerObjs.Count) + " - " + absorbingPct + "%";
+		collectiveText.text = (leaderObjs.Count + listenerObjs.Count) + " - " + collectivePct + "%";
+		individualText.text = (storyObjs.Count + plannerObjs.Count) + " - " + individualPct + "%";
+
+		float totalAngle = 0;
+
+		storyFOV.viewAngle = ExtensionFunctions.Map(storyPct, 0, 100, 0, 360);
+		storyFOV.gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, totalAngle + storyFOV.viewAngle / 2, 0));
+		storyFOV.DrawFieldOfView();
+		totalAngle += storyFOV.viewAngle;
+
+		leaderFOV.viewAngle = ExtensionFunctions.Map(leaderPct, 0, 100, 0, 360);
+		leaderFOV.gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, totalAngle + leaderFOV.viewAngle / 2, 0));
+		leaderFOV.DrawFieldOfView();
+		totalAngle += leaderFOV.viewAngle;
+
+		listenerFOV.viewAngle = ExtensionFunctions.Map(listenerPct, 0, 100, 0, 360);
+		listenerFOV.gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, totalAngle + listenerFOV.viewAngle / 2, 0));
+		listenerFOV.DrawFieldOfView();
+		totalAngle += listenerFOV.viewAngle;
+
+		plannerFOV.viewAngle = ExtensionFunctions.Map(plannerPct, 0, 100, 0, 360);
+		plannerFOV.gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, totalAngle + plannerFOV.viewAngle / 2, 0));
+		plannerFOV.DrawFieldOfView();
+		totalAngle += plannerFOV.viewAngle;
+
+		float pct = storyPct + leaderPct + listenerPct + plannerPct;
+		oddsFOV.viewAngle = ExtensionFunctions.Map((100 - pct), 0, 100, 0, 360);
+		oddsFOV.gameObject.transform.rotation = Quaternion.Euler(new Vector3(0, totalAngle + oddsFOV.viewAngle / 2, 0));
+		oddsFOV.DrawFieldOfView();
+
+		pieChartParent.transform.rotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 	}
 
 	private void PlaceNodes()
